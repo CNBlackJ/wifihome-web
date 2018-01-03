@@ -1,0 +1,125 @@
+<style lang="less">
+	.userinfo {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.userinfo-avatar {
+		width: 128rpx;
+		height: 128rpx;
+		margin: 20rpx;
+		border-radius: 50%;
+	}
+
+	.userinfo-nickname {
+		color: #aaa;
+	}
+</style>
+
+<template>
+  <view class="userinfo">
+    <block>
+      <image @tap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" background-size="cover"></image>
+      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+    </block>
+  </view>
+  <view wx:if="{{isGetWifi}}">
+    <text class="wifi-name">{{wifi.name}}</text>
+    <text selectable='true' class="user-pwd">{{wifi.password}}</text>
+  </view>
+  <view class="page__bd" wx:if="{{!isGetWifi}}">
+    <view class="weui-toptips weui-toptips_warn" wx:if="{{false}}">错误提示</view>
+    <view class="weui-cells__title">有以下Wi-Fi可用：</view>
+    <view class="weui-cells weui-cells_after-title">
+      <radio-group @change="changeWifi">
+        <label class="weui-cell weui-check__label" wx:for="{{wifis}}" wx:key="value">
+          <radio class="weui-check" value="{{item._id}}" checked="{{item.checked}}"/>
+          <view class="weui-cell__bd">{{item.name}}</view>
+          <view class="weui-cell__ft weui-cell__ft_in-radio" wx:if="{{item.checked}}">
+            <icon class="weui-icon-radio" type="success_no_circle" size="16"></icon>
+          </view>
+        </label>
+      </radio-group>
+      <view class="weui-cell weui-cell_link">
+          <view @tap="searchMore" class="weui-cell__bd">查找更多</view>
+      </view>
+    </view>
+  </view>
+  <view class="weui-btn-area" wx:if="{{!isGetWifi}}">
+    <button class="weui-btn" type="primary" @tap="getWifiPwd">获取Wi-Fi密码</button>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import List from '../components/list'
+
+export default class Index extends wepy.page {
+  components = {
+    list: List
+  }
+
+  data = {
+    userInfo: {},
+    hasUserInfo: false,
+    wifi: {},
+    wifiId: '',
+    wifis: [],
+    isGetWifi: false
+  }
+
+  methods = {
+    getWifiPwd () {
+      this.$navigate('./wifi')
+    },
+    listWifi (cb) {
+      const url = 'http://localhost:7001/api/wifis'
+      wepy.request({
+        url,
+        success: cb
+      })
+    },
+    changeWifi (e) {
+      this.wifiId = e.detail.value
+      this.wifis.forEach(wifi => {
+        wifi.checked = wifi._id === e.detail.value
+      })
+    },
+    searchMore () {
+      const self = this
+      this.methods.listWifi((res) => {
+        if (res && res.data) {
+          const wifis = res.data
+          if (wifis && wifis.length > 0) {
+            wifis[0].checked = true
+            self.wifiId = wifis[0]._id
+            self.wifis = wifis
+            self.$apply()
+          }
+        }
+      })
+    }
+  }
+
+  onLoad() {
+    let self = this
+    this.$parent.getUserInfo(function (userInfo) {
+      if (userInfo) {
+        self.userInfo = userInfo
+      }
+      self.$apply()
+    })
+    self.methods.listWifi((res) => {
+      if (res && res.data) {
+        const wifis = res.data
+        if (wifis && wifis.length > 0) {
+          wifis[0].checked = true
+          self.wifiId = wifis[0]._id
+          self.wifis = wifis
+        }
+      }
+    })
+  }
+}
+</script>

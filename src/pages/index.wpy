@@ -99,6 +99,25 @@ export default class Index extends wepy.page {
           }
         }
       })
+    },
+    createUser (userInfo) {
+      const url = 'http://localhost:7001/api/users'
+      const payload = {
+        name: userInfo.nickName || '',
+        avatar: userInfo.avatarUrl || '',
+        sex: userInfo.gender || 3,
+        city: userInfo.city || '',
+        role: 'user'
+      }
+      wepy.request({
+        url,
+        method: 'POST',
+        data: payload,
+        success: (res) => {
+          console.log('success to create user.')
+          console.log(res)
+        }
+      })
     }
   }
 
@@ -106,6 +125,8 @@ export default class Index extends wepy.page {
     let self = this
     this.$parent.getUserInfo(function (userInfo) {
       if (userInfo) {
+        console.log(userInfo)
+        self.methods.createUser(userInfo)
         self.userInfo = userInfo
       }
       self.$apply()

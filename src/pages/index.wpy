@@ -122,11 +122,28 @@ export default class Index extends wepy.page {
   }
 
   onLoad() {
+    wepy.startWifi({
+      success: (res) => {
+        wepy.getWifiList({
+          success: (res) => {
+            wepy.onGetWifiList((res) => {
+              console.log(res)
+            })
+          },
+          fail: (err) => {
+            console.log(err)
+          }
+        })
+      },
+      fail: (err) => {
+        console.log(err)
+      }
+    })
+
     let self = this
     this.$parent.getUserInfo(function (userInfo) {
       if (userInfo) {
-        console.log(userInfo)
-        self.methods.createUser(userInfo)
+        // self.methods.createUser(userInfo)
         self.userInfo = userInfo
       }
       self.$apply()

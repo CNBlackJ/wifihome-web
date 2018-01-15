@@ -43,8 +43,28 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/index',
-      'pages/wifi'
+      'pages/wifi',
+      'pages/mywifi'
     ],
+    tabBar: {
+      color: '#999999',
+      selectedColor: '#09BB07',
+      backgroundColor: '#F7F7FA',
+      list: [
+        {
+          pagePath: 'pages/index',
+          text: 'wifi列表',
+          iconPath: './image/wifiList.png',
+          selectedIconPath: './image/wifiList.png'
+        },
+        {
+          pagePath: 'pages/mywifi',
+          text: '我的wifi',
+          iconPath: './image/myWifi.png',
+          selectedIconPath: './image/myWifi.png'
+        }
+      ]
+    },
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',

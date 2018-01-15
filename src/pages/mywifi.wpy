@@ -1,0 +1,92 @@
+<style type="less">
+.button-sp-area{
+    margin: 0 auto;
+    padding-top: 15px;
+    width: 60%;
+}
+.mini-btn{
+    margin-right: 5px;
+}
+</style>
+<template>
+<view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
+    <view class="page__bd">
+        <view class="weui-toptips weui-toptips_warn" wx:if="{{showTopTips}}">错误提示</view>
+
+        <view class="weui-cells__title">完善Wi-Fi基本信息：</view>
+        <view class="weui-cells weui-cells_after-title">
+            <view class="weui-cell weui-cell_select">
+                <view class="weui-cell__hd weui-cell__hd_in-select-after">
+                    <view class="weui-label">选择Wi-Fi</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <picker bindchange="bindWifiChange" value="{{wifiIndex}}" range="{{wifis}}">
+                        <view class="weui-select weui-select_in-select-after">{{wifis[wifiIndex]}}</view>
+                    </picker>
+                </view>
+            </view>
+            <view class="weui-cell weui-cell_input">
+                <view class="weui-cell__hd">
+                    <view class="weui-label">Wi-Fi密码</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <input class="weui-input" placeholder="请输入Wi-Fi密码"/>
+                </view>
+            </view>
+            <view class="weui-cell weui-cell_input weui-cell_vcode">
+                <view class="weui-cell__hd">
+                    <view class="weui-label">简易密码</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <input class="weui-input" placeholder="请输入简易密码" />
+                </view>
+            </view>
+        </view>
+        <view class="weui-cells__tips">简易密码提供给访客使用，不需要更改原本的密码</view>
+
+        <view class="weui-btn-area">
+            <button class="weui-btn" type="primary" bindtap="showTopTips">确定</button>
+        </view>
+    </view>
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Mywifi extends wepy.page {
+    components = {}
+
+    data = {
+      wifis: [1,2,3,4,5],
+      wifiIndex: 0
+    }
+
+    methods = {
+      listWifi (cb) {
+        const url = 'http://localhost:7001/api/wifis'
+        wepy.request({
+          url,
+          success: cb
+        })
+      },
+      bindWifiChange (e) {
+        const self = this
+        self.wifiIndex = e.detail.value
+      }
+    }
+
+    onLoad() {
+      const self = this
+      self.methods.listWifi((res) => {
+        if (res && res.data) {
+          const wifis = res.data
+          console.log(wifis)
+          if (wifis && wifis.length > 0) {
+            self.wifis = wifis.map(wifi => wifi.name)
+          }
+        }
+      })
+    }
+  }
+</script>

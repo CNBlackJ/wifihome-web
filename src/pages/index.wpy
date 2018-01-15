@@ -55,7 +55,7 @@
 import wepy from 'wepy'
 import List from '../components/list'
 
-export default class Index extends wepy.page {
+export default class showWifis extends wepy.page {
   components = {
     list: List
   }

@@ -35,7 +35,7 @@
       <radio-group @change="changeWifi">
         <label class="weui-cell weui-check__label" wx:for="{{wifis}}" wx:key="value">
           <radio class="weui-check" value="{{item._id}}" checked="{{item.checked}}"/>
-          <view class="weui-cell__bd">{{item.name}}</view>
+          <view class="weui-cell__bd">{{item.SSID}}</view>
           <view class="weui-cell__ft weui-cell__ft_in-radio" wx:if="{{item.checked}}">
             <icon class="weui-icon-radio" type="success_no_circle" size="16"></icon>
           </view>
@@ -103,6 +103,7 @@ export default class showWifis extends wepy.page {
     createUser (userInfo) {
       const url = 'http://localhost:7001/api/users'
       const payload = {
+        code: userInfo.code,
         name: userInfo.nickName || '',
         avatar: userInfo.avatarUrl || '',
         sex: userInfo.gender || 3,
@@ -114,36 +115,36 @@ export default class showWifis extends wepy.page {
         method: 'POST',
         data: payload,
         success: (res) => {
-          console.log('success to create user.')
-          console.log(res)
+          console.log('success to create or update user info.')
         }
       })
     }
   }
 
   onLoad() {
-    wepy.startWifi({
-      success: (res) => {
-        wepy.getWifiList({
-          success: (res) => {
-            wepy.onGetWifiList((res) => {
-              console.log(res)
-            })
-          },
-          fail: (err) => {
-            console.log(err)
-          }
-        })
-      },
-      fail: (err) => {
-        console.log(err)
-      }
-    })
+    // wepy.startWifi({
+    //   success: (res) => {
+    //     wepy.getWifiList({
+    //       success: (res) => {
+    //         wepy.onGetWifiList((res) => {
+    //           console.log(res)
+    //         })
+    //       },
+    //       fail: (err) => {
+    //         console.log(err)
+    //       }
+    //     })
+    //   },
+    //   fail: (err) => {
+    //     console.log(err)
+    //   }
+    // })
 
     let self = this
     this.$parent.getUserInfo(function (userInfo) {
       if (userInfo) {
-        // self.methods.createUser(userInfo)
+        userInfo.code = self.$parent.globalData.loginCode
+        self.methods.createUser(userInfo)
         self.userInfo = userInfo
       }
       self.$apply()

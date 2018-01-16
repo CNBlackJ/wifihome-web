@@ -13,10 +13,10 @@ page{
                 <view class="weui-msg__title">获取密码成功</view>
                 <view class="weui-msg__desc">
                   <view>
-                    <strong>Wi-Fi：</strong>{{wifi.name}}
+                    <strong>Wi-Fi：</strong>{{wifi.SSID}}
                   </view>
                   <view>
-                    <strong>密码：</strong>{{wifi.password}}
+                    <strong>密码：</strong>{{wifi.easyPwd}}
                   </view>
                 </view>
             </view>

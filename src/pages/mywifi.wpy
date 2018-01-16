@@ -11,7 +11,7 @@
 <template>
 <view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
     <view class="page__bd">
-        <view class="weui-toptips weui-toptips_warn" wx:if="{{showTopTips}}">错误提示</view>
+        <view class="weui-toptips weui-toptips_warn" wx:if="{{showTopTips}}">Wi-Fi密码至少为八位</view>
 
         <view class="weui-cells__title">完善Wi-Fi基本信息：</view>
         <view class="weui-cells weui-cells_after-title">
@@ -30,7 +30,7 @@
                     <view class="weui-label">Wi-Fi密码</view>
                 </view>
                 <view class="weui-cell__bd">
-                    <input class="weui-input" placeholder="请输入Wi-Fi密码"/>
+                    <input password="true" class="weui-input" bindinput="setOriginPwd" placeholder="请输入Wi-Fi密码"/>
                 </view>
             </view>
             <view class="weui-cell weui-cell_input weui-cell_vcode">
@@ -38,14 +38,14 @@
                     <view class="weui-label">简易密码</view>
                 </view>
                 <view class="weui-cell__bd">
-                    <input class="weui-input" placeholder="请输入简易密码" />
+                    <input class="weui-input" bindinput="setEasyPwd" placeholder="请输入简易密码" />
                 </view>
             </view>
         </view>
         <view class="weui-cells__tips">简易密码提供给访客使用，不需要更改原本的密码</view>
 
         <view class="weui-btn-area">
-            <button class="weui-btn" type="primary" bindtap="showTopTips">确定</button>
+            <button class="weui-btn" type="primary" @tap="createWifi">确定</button>
         </view>
     </view>
 </view>
@@ -53,16 +53,36 @@
 
 <script>
   import wepy from 'wepy'
+  import faker from 'faker'
 
   export default class Mywifi extends wepy.page {
     components = {}
 
     data = {
-      wifis: [1,2,3,4,5],
-      wifiIndex: 0
+      showTopTips: false,
+      wifis: [],
+      wifiIndex: 0,
+      myWifi: {}
     }
 
     methods = {
+      createWifi () {
+        const randomSsid = faker.address.city()
+        let randomMac = '54:52:00'
+        for (let i = 0; i < 6; i++) {
+          if (i%2 === 0) randomMac += ':'
+          randomMac += Math.floor(Math.random()*16).toString(16)
+        }
+        const self = this
+        const myWifi = self.myWifi
+        const url = 'http://localhost:7001/api/wifis'
+        Object.assign(myWifi, { SSID: randomSsid, BSSID: randomMac, secure: true, signalStrength: 100 })
+        wepy.request({
+          url,
+          method: 'POST',
+          data: myWifi
+        })
+      },
       listWifi (cb) {
         const url = 'http://localhost:7001/api/wifis'
         wepy.request({
@@ -73,6 +93,15 @@
       bindWifiChange (e) {
         const self = this
         self.wifiIndex = e.detail.value
+      },
+      setOriginPwd (e) {
+        const self = this
+        self.myWifi.originPwd = e.detail.value
+        self.showTopTips = e.detail.value.length < 8
+      },
+      setEasyPwd (e) {
+        const self = this
+        self.myWifi.easyPwd = e.detail.value
       }
     }
 
@@ -81,9 +110,8 @@
       self.methods.listWifi((res) => {
         if (res && res.data) {
           const wifis = res.data
-          console.log(wifis)
           if (wifis && wifis.length > 0) {
-            self.wifis = wifis.map(wifi => wifi.name)
+            self.wifis = wifis.map(wifi => wifi.SSID)
           }
         }
       })

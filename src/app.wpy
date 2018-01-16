@@ -74,7 +74,8 @@ export default class extends wepy.app {
   }
 
   globalData = {
-    userInfo: null
+    userInfo: null,
+    loginCode: ''
   }
 
   constructor () {
@@ -83,7 +84,16 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    // this.testAsync()
+    const self = this
+    wepy.login({
+      success: function(res) {
+        if (res.code) {
+          self.globalData.loginCode = res.code
+        } else {
+          console.log('获取用户登录态失败！' + res.errMsg)
+        }
+      }
+    })
   }
 
   sleep (s) {

@@ -75,7 +75,7 @@
         }
         const self = this
         const myWifi = self.myWifi
-        const url = 'http://localhost:7001/api/wifis'
+        const url = 'http://39.108.246.148:7001/api/wifis'
         Object.assign(myWifi, { SSID: randomSsid, BSSID: randomMac, secure: true, signalStrength: 100 })
         wepy.request({
           url,
@@ -84,7 +84,7 @@
         })
       },
       listWifi (cb) {
-        const url = 'http://localhost:7001/api/wifis'
+        const url = 'http://39.108.246.148:7001/api/wifis'
         wepy.request({
           url,
           success: cb

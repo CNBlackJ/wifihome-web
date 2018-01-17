@@ -48,6 +48,7 @@
   </view>
   <view class="weui-btn-area" wx:if="{{!isGetWifi}}">
     <button class="weui-btn" type="primary" @tap="getWifiPwd">获取Wi-Fi密码</button>
+    <button class="weui-btn" type="primary" @tap="connectWifi">连接Wi-Fi</button>
   </view>
 </template>
 
@@ -74,7 +75,7 @@ export default class showWifis extends wepy.page {
       this.$navigate('./wifi')
     },
     listWifi (cb) {
-      const url = 'http://localhost:7001/api/wifis'
+      const url = 'http://39.108.246.148:7001/api/wifis'
       wepy.request({
         url,
         success: cb
@@ -101,7 +102,7 @@ export default class showWifis extends wepy.page {
       })
     },
     createUser (userInfo) {
-      const url = 'http://localhost:7001/api/users'
+      const url = 'http://39.108.246.148:7001/api/users'
       const payload = {
         code: userInfo.code,
         name: userInfo.nickName || '',
@@ -118,28 +119,42 @@ export default class showWifis extends wepy.page {
           console.log('success to create or update user info.')
         }
       })
+    },
+    connectWifi () {
+      wepy.startWifi({
+        success: (res) => {
+          wepy.getWifiList({
+            success: (res) => {
+              wepy.onGetWifiList((res) => {
+                if (res.wifiList.length) {
+                  const targetWifi = res.wifiList.find(wifi => wifi.SSID === 'Tenda_CCFC')
+                  wepy.setWifiList({
+                    wifiList: [{
+                      SSID: targetWifi.SSID,
+                      BSSID: targetWifi.BSSID,
+                      password: 'Tenda_CCFC'
+                    }]
+                  })
+                } else {
+                  wepy.setWifiList({
+                    wifiList: []
+                  })
+                }
+              })
+            },
+            fail: (err) => {
+              console.log(err)
+            }
+          })
+        },
+        fail: (err) => {
+          console.log(err)
+        }
+      })
     }
   }
 
   onLoad() {
-    // wepy.startWifi({
-    //   success: (res) => {
-    //     wepy.getWifiList({
-    //       success: (res) => {
-    //         wepy.onGetWifiList((res) => {
-    //           console.log(res)
-    //         })
-    //       },
-    //       fail: (err) => {
-    //         console.log(err)
-    //       }
-    //     })
-    //   },
-    //   fail: (err) => {
-    //     console.log(err)
-    //   }
-    // })
-
     let self = this
     this.$parent.getUserInfo(function (userInfo) {
       if (userInfo) {

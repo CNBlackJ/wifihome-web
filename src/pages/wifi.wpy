@@ -50,7 +50,7 @@ page{
     onLoad(params, data) {
       const wifiId = data.from.wifiId
       const self = this
-      const url = `http://localhost:7001/api/wifis/${wifiId}`
+      const url = `http://39.108.246.148:7001/api/wifis/${wifiId}`
       wepy.request({url,
         success: function (res) {
           if (res && res.data) {
